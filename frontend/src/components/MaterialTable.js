@@ -14,11 +14,11 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { data, states } from './makeData';
+// import { data, states } from './makeData';
 
 const MaterialTable = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tableData, setTableData] = useState(() => data);
+  const [tableData, setTableData] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
 
   const handleCreateNewRow = (values) => {
@@ -42,7 +42,7 @@ const MaterialTable = () => {
   const handleDeleteRow = useCallback(
     (row) => {
       if (
-        !confirm(`Are you sure you want to delete ${row.getValue('firstName')}`)
+        alert(`Are you sure you want to delete ${row.getValue('firstName')}`)
       ) {
         return;
       }
@@ -84,60 +84,77 @@ const MaterialTable = () => {
     [validationErrors],
   );
 
+  async function getApps(){
+    
+  }
+
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
-        enableColumnOrdering: false,
-        enableEditing: false, //disable editing on this column
-        enableSorting: false,
-        size: 80,
-      },
-      {
-        accessorKey: 'firstName',
-        header: 'First Name',
+        accessorKey: 'link',
+        header: 'Link',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
       },
       {
-        accessorKey: 'lastName',
-        header: 'Last Name',
+        accessorKey: 'code',
+        header: 'Code Source',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
       },
       {
-        accessorKey: 'email',
-        header: 'Email',
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'email',
-        }),
+        accessorKey: 'Name',
+        header: 'Name',
+        size: 140,
+        enableEditing: false,
       },
       {
-        accessorKey: 'age',
-        header: 'Age',
+        accessorKey: 'Image',
+        header: 'Image',
+        size: 140,
+        enableEditing: false,
+      },
+      {
+        accessorKey: 'Developer',
+        header: 'Developer',
+        enableEditing: false,
+      },
+      {
+        accessorKey: 'Last Updated',
+        header: 'Last Updated',
         size: 80,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'number',
-        }),
+        enableEditing: false,
       },
       {
-        accessorKey: 'state',
-        header: 'State',
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: states.map((state) => (
-            <MenuItem key={state} value={state}>
-              {state}
-            </MenuItem>
-          )),
-        },
+        accessorKey: 'Downloads',
+        header: 'Downloads',
+        size: 80,
+        enableEditing: false,
+      },
+      {
+        accessorKey: 'Live',
+        header: 'Live',
+        size: 80,
+        enableEditing: false,
+      },
+      {
+        accessorKey: 'Website',
+        header: 'Website',
+        enableEditing: false,
+      },
+      {
+        accessorKey: 'Privacy Policy',
+        header: 'Privacy Policy',
+        enableEditing: false,
+      },
+      {
+        accessorKey: 'Support Mail',
+        header: 'Support Mail',
+        enableEditing: false,
       },
     ],
     [getCommonEditTextFieldProps],
@@ -176,13 +193,23 @@ const MaterialTable = () => {
           </Box>
         )}
         renderTopToolbarCustomActions={() => (
-          <Button
+          <>
+            <Button
             color="secondary"
             onClick={() => setCreateModalOpen(true)}
             variant="contained"
           >
-            Create New Account
+            Add a new app
           </Button>
+          <Button
+          color="secondary"
+          onClick={getApps}
+          variant="contained"
+        >
+          Get Apps Data
+        </Button>
+         </>
+          
         )}
       />
       <CreateNewAccountModal
@@ -207,6 +234,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
   const handleSubmit = () => {
     //put your validation logic here
     onSubmit(values);
+    setValues("")
     onClose();
   };
 
