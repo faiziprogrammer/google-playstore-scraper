@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable } from 'material-react-table';
 import {
   Box,
@@ -12,24 +12,42 @@ import {
   Stack,
   TextField,
   Tooltip,
+  Select,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-// import { data, states } from './makeData';
+import axios from 'axios'
+
+const sources = ["java","flutter","unity"]
 
 const MaterialTable = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
 
+  useEffect(()=>{
+    axios.get("http://localhost:5000/getDatabase")
+    .then((response)=>{
+      setTableData(response.data)
+    })
+  },[])
+
   const handleCreateNewRow = (values) => {
-    tableData.push(values);
-    setTableData([...tableData]);
+    axios.post("http://localhost:5000/create",values)
+    .then(()=>{
+      tableData.push(values);
+      setTableData([...tableData]);
+    })
+    
   };
 
   const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
     if (!Object.keys(validationErrors).length) {
       tableData[row.index] = values;
       //send/receive api updates here, then refetch or update local table data for re-render
+      axios.post("http://localhost:5000/edit",values)
+
       setTableData([...tableData]);
       exitEditingMode(); //required to exit editing mode and close modal
     }
@@ -42,11 +60,13 @@ const MaterialTable = () => {
   const handleDeleteRow = useCallback(
     (row) => {
       if (
-        alert(`Are you sure you want to delete ${row.getValue('firstName')}`)
+        !window.confirm(`Are you sure you want to delete ${row.getValue('Name')}`)
       ) {
         return;
       }
       //send api delete request here, then refetch or update local table data for re-render
+      axios.post("http://localhost:5000/delete",{link:`${row.getValue('link')}`})
+     
       tableData.splice(row.index, 1);
       setTableData([...tableData]);
     },
@@ -84,9 +104,29 @@ const MaterialTable = () => {
     [validationErrors],
   );
 
-  async function getApps(){
-    
+  async function getApps() {
+    try {
+      const updatedTableData = await Promise.all(
+        tableData.map(async (row) => {
+          const response = await axios.get(`http://localhost:5000/getApps`, {
+            params: { link: row.link,
+            code:row.code },
+          });
+          return response.data;
+        })
+      );
+      
+      setTableData(updatedTableData);
+      await axios.post('http://localhost:5000/postApps',updatedTableData)
+      .then(()=>{
+        alert("Data fetched and saved successfully")
+      })
+    } catch (error) {
+      // Handle any errors that may occur during the requests
+      console.error("Error fetching data:", error);
+    }
   }
+  
 
   const columns = useMemo(
     () => [
@@ -100,11 +140,16 @@ const MaterialTable = () => {
       },
       {
         accessorKey: 'code',
-        header: 'Code Source',
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
+        header: 'Source',
+        size: 80,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: sources.map((state) => (
+            <MenuItem key={state} value={state}>
+              {state}
+            </MenuItem>
+          )),
+        },
       },
       {
         accessorKey: 'Name',
@@ -117,42 +162,48 @@ const MaterialTable = () => {
         header: 'Image',
         size: 140,
         enableEditing: false,
+        Cell: ({ cell }) => (
+              <Box >
+                <img style={{ width: '80px' }} src={cell.getValue()}/>
+              </Box>
+            ),
       },
       {
         accessorKey: 'Developer',
         header: 'Developer',
+        size: 20,
         enableEditing: false,
       },
       {
-        accessorKey: 'Last Updated',
+        accessorKey: 'lastUpdated',
         header: 'Last Updated',
-        size: 80,
+        size: 20,
         enableEditing: false,
       },
       {
-        accessorKey: 'Downloads',
+        accessorKey: 'downloads',
         header: 'Downloads',
-        size: 80,
+        size: 20,
         enableEditing: false,
       },
       {
         accessorKey: 'Live',
         header: 'Live',
-        size: 80,
+        size: 20,
         enableEditing: false,
       },
       {
-        accessorKey: 'Website',
+        accessorKey: 'website',
         header: 'Website',
         enableEditing: false,
       },
       {
-        accessorKey: 'Privacy Policy',
+        accessorKey: 'privacyPolicy',
         header: 'Privacy Policy',
         enableEditing: false,
       },
       {
-        accessorKey: 'Support Mail',
+        accessorKey: 'supportMail',
         header: 'Support Mail',
         enableEditing: false,
       },
@@ -193,7 +244,7 @@ const MaterialTable = () => {
           </Box>
         )}
         renderTopToolbarCustomActions={() => (
-          <>
+          <div style={{ display: 'flex', gap: '20px' }}> 
             <Button
             color="secondary"
             onClick={() => setCreateModalOpen(true)}
@@ -208,7 +259,7 @@ const MaterialTable = () => {
         >
           Get Apps Data
         </Button>
-         </>
+         </div>
           
         )}
       />
@@ -240,7 +291,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign="center">Create New Account</DialogTitle>
+      <DialogTitle textAlign="center">Create App Link</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
@@ -251,22 +302,41 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
             }}
           >
             {columns.map((column) => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-            ))}
+  <div key={column.accessorKey}>
+    {column.accessorKey === 'code' ? (
+      <FormControl sx={{width:1}} >
+        <InputLabel>Select Language</InputLabel>
+        <Select
+          name={column.accessorKey}
+          onChange={(e) =>
+            setValues({ ...values, [e.target.name]: e.target.value })
+          }
+        >
+          {/* Render your dropdown options here */}
+          <MenuItem value="flutter">Flutter</MenuItem>
+          <MenuItem value="java">Java</MenuItem>
+          <MenuItem value="unity">Unity</MenuItem>
+        </Select>
+      </FormControl>
+    ) : (
+      <TextField
+        sx={{width:1}}
+        label={column.header}
+        name={column.accessorKey}
+        onChange={(e) =>
+          setValues({ ...values, [e.target.name]: e.target.value })
+        }
+      />
+    )}
+  </div>
+))}
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color="secondary" onClick={handleSubmit} variant="contained">
-          Create New Account
+          Create App Link
         </Button>
       </DialogActions>
     </Dialog>
