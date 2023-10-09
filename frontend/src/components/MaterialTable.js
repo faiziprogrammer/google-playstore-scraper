@@ -29,7 +29,7 @@ const MaterialTable = () => {
 
   useEffect(()=>{
     setIsLoading(true);
-    axios.get("http://localhost:5000/getDatabase")
+    axios.get(`${process.env.REACT_APP_BASE_URL}/getDatabase`)
     .then((response)=>{
       setTableData(response.data)
       setIsLoading(false);
@@ -37,7 +37,7 @@ const MaterialTable = () => {
   },[])
 
   const handleCreateNewRow = (values) => {
-    axios.post("http://localhost:5000/create",values)
+    axios.post(`${process.env.REACT_APP_BASE_URL}/create`,values)
     .then(()=>{
       tableData.push(values);
       setTableData([...tableData]);
@@ -49,7 +49,7 @@ const MaterialTable = () => {
     if (!Object.keys(validationErrors).length) {
       tableData[row.index] = values;
       //send/receive api updates here, then refetch or update local table data for re-render
-      axios.post("http://localhost:5000/edit",values)
+      axios.post(`${process.env.REACT_APP_BASE_URL}/edit`,values)
 
       setTableData([...tableData]);
       exitEditingMode(); //required to exit editing mode and close modal
@@ -68,7 +68,7 @@ const MaterialTable = () => {
         return;
       }
       //send api delete request here, then refetch or update local table data for re-render
-      axios.post("http://localhost:5000/delete",{link:`${row.getValue('link')}`})
+      axios.post(`${process.env.REACT_APP_BASE_URL}/delete`,{link:`${row.getValue('link')}`})
      
       tableData.splice(row.index, 1);
       setTableData([...tableData]);
@@ -111,7 +111,7 @@ const MaterialTable = () => {
     try {
       const updatedTableData = await Promise.all(
         tableData.map(async (row) => {
-          const response = await axios.get(`http://localhost:5000/getApps`, {
+          const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/getApps`, {
             params: { link: row.link,
             code:row.code },
           });
@@ -120,7 +120,7 @@ const MaterialTable = () => {
       );
       
       setTableData(updatedTableData);
-      await axios.post('http://localhost:5000/postApps',updatedTableData)
+      await axios.post(`${process.env.REACT_APP_BASE_URL}/postApps`,updatedTableData)
       .then(()=>{
         alert("Data fetched and saved successfully")
       })
