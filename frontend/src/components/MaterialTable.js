@@ -25,11 +25,14 @@ const MaterialTable = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(()=>{
+    setIsLoading(true);
     axios.get("http://localhost:5000/getDatabase")
     .then((response)=>{
       setTableData(response.data)
+      setIsLoading(false);
     })
   },[])
 
@@ -213,6 +216,7 @@ const MaterialTable = () => {
 
   return (
     <>
+    {isLoading ? <p>Loading...</p> : null}
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
@@ -290,6 +294,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }) => {
   };
 
   return (
+    
     <Dialog open={open}>
       <DialogTitle textAlign="center">Create App Link</DialogTitle>
       <DialogContent>
