@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import axios from 'axios'
+import LoadingSpinner from './LoadingSpinner';
 
 const sources = ["java","flutter","unity"]
 
@@ -28,11 +29,9 @@ const MaterialTable = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(()=>{
-    setIsLoading(true);
     axios.get(`${process.env.REACT_APP_BASE_URL}/getDatabase`)
     .then((response)=>{
       setTableData(response.data)
-      setIsLoading(false);
     })
   },[])
 
@@ -108,6 +107,7 @@ const MaterialTable = () => {
   );
 
   async function getApps() {
+    setIsLoading(true);
     try {
       const updatedTableData = await Promise.all(
         tableData.map(async (row) => {
@@ -122,6 +122,7 @@ const MaterialTable = () => {
       setTableData(updatedTableData);
       await axios.post(`${process.env.REACT_APP_BASE_URL}/postApps`,updatedTableData)
       .then(()=>{
+        setIsLoading(false);
         alert("Data fetched and saved successfully")
       })
     } catch (error) {
@@ -216,7 +217,7 @@ const MaterialTable = () => {
 
   return (
     <>
-    {isLoading ? <p>Loading...</p> : null}
+    {isLoading ? <LoadingSpinner/> : null}
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {

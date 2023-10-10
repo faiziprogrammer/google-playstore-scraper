@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 5000; // Set your desired port number
-require("dotenv").config();
+// require("dotenv").config();
 
 // Enable CORS for all routes
 app.use(cors());
@@ -118,16 +118,15 @@ async function getData (link,code){
   let privacyPolicy
   let supportMail
 
-  const browser = await puppeteer.launch({ headless: true,executablePath:
-    process.env.NODE_ENV === "production"
-      ? process.env.PUPPETEER_EXECUTABLE_PATH
-      : puppeteer.executablePath(),
-      args: [
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-        "--single-process",
-        "--no-zygote",
-      ] });
+  const browser = await puppeteer.launch({ headless: true,
+    // executablePath:process.env.NODE_ENV === "production" ? process.env.PUPPETEER_EXECUTABLE_PATH: puppeteer.executablePath(),
+    // args: [
+    //   "--disable-setuid-sandbox",
+    //   "--no-sandbox",
+    //   "--single-process",
+    //   "--no-zygote",
+    // ],
+   });
   const page = await browser.newPage();
   
   await page.goto(link);
