@@ -19,6 +19,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import axios from 'axios'
 import LoadingSpinner from './LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 const sources = ["java","flutter","unity"]
 
@@ -200,16 +201,31 @@ const MaterialTable = () => {
         accessorKey: 'website',
         header: 'Website',
         enableEditing: false,
+        Cell: ({ cell }) => (
+          <Box >
+            <Link target="_blank" to={cell.getValue()}>{cell.getValue()}</Link>
+          </Box>
+        ),
       },
       {
         accessorKey: 'privacyPolicy',
         header: 'Privacy Policy',
         enableEditing: false,
+        Cell: ({ cell }) => (
+          <Box >
+            <Link target="_blank" to={cell.getValue()}>{cell.getValue()}</Link>
+          </Box>
+        ),
       },
       {
         accessorKey: 'supportMail',
         header: 'Support Mail',
         enableEditing: false,
+        Cell: ({ cell }) => (
+          <Box >
+            <Link target="_blank" to={cell.getValue()}>{cell.getValue()}</Link>
+          </Box>
+        ),
       },
     ],
     [getCommonEditTextFieldProps],
