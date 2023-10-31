@@ -20,8 +20,10 @@ import { Delete, Edit } from '@mui/icons-material';
 import axios from 'axios'
 import LoadingSpinner from './LoadingSpinner';
 import { Link } from 'react-router-dom';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 const sources = ["java","flutter","unity"]
+const url = "play.google.com"
 
 const MaterialTable = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -116,7 +118,13 @@ const MaterialTable = () => {
             params: { link: row.link,
             code:row.code },
           });
-          return response.data;
+          if(response.data.Live==="Not Live"){
+            row.Live="Not Live"
+            return row;
+          }
+          else {
+            return response.data;
+          }
         })
       );
       
@@ -128,6 +136,7 @@ const MaterialTable = () => {
       })
     } catch (error) {
       // Handle any errors that may occur during the requests
+      setIsLoading(false);
       console.error("Error fetching data:", error);
     }
   }
@@ -178,6 +187,17 @@ const MaterialTable = () => {
         header: 'Developer',
         size: 20,
         enableEditing: false,
+        Cell: ({ cell }) => (
+          cell.getValue()?(<CopyToClipboard text={url+cell.getValue()}>
+            <button style={{
+              padding: '4px 16px',
+              borderRadius: '4px',
+              color: 'black',
+              border:'1px solid black',
+              backgroundColor:'white'
+            }}>{url+cell.getValue()}</button>
+          </CopyToClipboard>):""
+        ),
       },
       {
         accessorKey: 'lastUpdated',
@@ -190,21 +210,47 @@ const MaterialTable = () => {
         header: 'Downloads',
         size: 20,
         enableEditing: false,
+        Cell: ({ cell }) => (
+          <Box >
+            <p>{
+              convertAbbreviatedNumber(cell.getValue())
+              }</p>
+          </Box>
+        ),
       },
       {
         accessorKey: 'Live',
         header: 'Live',
         size: 20,
         enableEditing: false,
+        Cell: ({ cell }) => (
+          <Box
+            component="span"
+            style={{
+              padding: '4px 16px',
+              borderRadius: '8px',
+              color: 'white',
+              backgroundColor: cell.getValue() === 'Live' ? '#62DB2A' : '#DB2A2A',
+            }}
+          >
+            {cell.getValue()}
+          </Box>
+        ),
       },
       {
         accessorKey: 'website',
         header: 'Website',
         enableEditing: false,
         Cell: ({ cell }) => (
-          <Box >
-            <Link target="_blank" to={cell.getValue()}>{cell.getValue()}</Link>
-          </Box>
+          cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
+            <button style={{
+              padding: '4px 16px',
+              borderRadius: '4px',
+              color: 'black',
+              border:'1px solid black',
+              backgroundColor:'white'
+            }}>{cell.getValue()}</button>
+          </CopyToClipboard>):""
         ),
       },
       {
@@ -212,9 +258,15 @@ const MaterialTable = () => {
         header: 'Privacy Policy',
         enableEditing: false,
         Cell: ({ cell }) => (
-          <Box >
-            <Link target="_blank" to={cell.getValue()}>{cell.getValue()}</Link>
-          </Box>
+          cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
+            <button style={{
+              padding: '4px 16px',
+              borderRadius: '4px',
+              color: 'black',
+              border:'1px solid black',
+              backgroundColor:'white'
+            }}>{cell.getValue()}</button>
+          </CopyToClipboard>):""
         ),
       },
       {
@@ -222,15 +274,48 @@ const MaterialTable = () => {
         header: 'Support Mail',
         enableEditing: false,
         Cell: ({ cell }) => (
-          <Box >
-            <Link target="_blank" to={cell.getValue()}>{cell.getValue()}</Link>
-          </Box>
+          cell.getValue()?(<CopyToClipboard text={cell.getValue().replace("mailto:", "")}>
+            <button style={{
+              padding: '4px 16px',
+              borderRadius: '4px',
+              color: 'black',
+              border:'1px solid black',
+              backgroundColor:'white'
+            }}>{cell.getValue().replace("mailto:", "")}</button>
+          </CopyToClipboard>):""
         ),
       },
     ],
     [getCommonEditTextFieldProps],
   );
 
+  function convertAbbreviatedNumber(abbreviatedValue) {
+
+    if(abbreviatedValue===undefined){return ""}
+    // Remove any non-numeric characters and the '+' sign
+    const sanitizedValue = abbreviatedValue.replace(/[^\d.]/g, '');
+  
+    // Extract the numeric value and magnitude abbreviation
+    const numericValue = parseFloat(sanitizedValue);
+    const magnitudeAbbreviation = abbreviatedValue.replace(/[0-9.]/g, '').replace('+', '');
+  
+    // Define multiplier values for K, M, B, etc.
+    const multipliers = {
+      K: 1e3,
+      M: 1e6,
+      B: 1e9,
+    };
+  
+    // Check if the magnitude abbreviation exists in the multipliers
+    if (multipliers.hasOwnProperty(magnitudeAbbreviation)) {
+      // Multiply the numeric value by the corresponding multiplier
+      return numericValue * multipliers[magnitudeAbbreviation];
+    } else {
+      // If no valid abbreviation is found, return the numeric value as is
+      return numericValue;
+    }
+  }
+  
   return (
     <>
     {isLoading ? <LoadingSpinner/> : null}

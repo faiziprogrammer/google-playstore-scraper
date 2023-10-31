@@ -37,7 +37,7 @@ connectToDatabase();
 
 app.post("/edit", async (req,res)=>{
   try{
-    const appCollection = client.db('web-data').collection('totalAppData');
+    const appCollection = client.db('web-data').collection('totalAppData2');
     await appCollection.findOneAndReplace({link:req.body.link},req.body)
     res.status(200)
   }catch(error){
@@ -49,7 +49,7 @@ app.post("/edit", async (req,res)=>{
 
 app.post("/delete", async (req,res)=>{
   try{
-    const appCollection = client.db('web-data').collection('totalAppData');
+    const appCollection = client.db('web-data').collection('totalAppData2');
     await appCollection.findOneAndDelete({link:req.body.link})
     res.status(200)
   }catch(error){
@@ -61,7 +61,7 @@ app.post("/delete", async (req,res)=>{
 
 app.post("/create", async (req,res)=>{
   try{
-    const appCollection = client.db('web-data').collection('totalAppData');
+    const appCollection = client.db('web-data').collection('totalAppData2');
     await appCollection.insertOne(req.body);
     res.status(200).send("Successful")
   }catch(error){
@@ -73,14 +73,14 @@ app.post("/create", async (req,res)=>{
 
 
 app.get("/getDatabase", async (req,res) => {
-  const collectionArray = await client.db('web-data').collection('totalAppData').find({}).toArray();
+  const collectionArray = await client.db('web-data').collection('totalAppData2').find({}).toArray();
   res.send(collectionArray)
 })
 
 app.post("/postApps",async (req,res)=> {
   try {
 
-    const appCollection = client.db('web-data').collection('totalAppData');
+    const appCollection = client.db('web-data').collection('totalAppData2');
 
     // Delete all documents in the collection
     await appCollection.deleteMany({});
@@ -129,7 +129,7 @@ async function getData (link,code){
    });
   const page = await browser.newPage();
   
-  await page.goto(link);
+  await page.goto(link, { timeout: 60000 }); // Set a 60-second timeout
 
   try {
     // Wait for the element with itemprop="name" to appear in the DOM
@@ -139,14 +139,13 @@ async function getData (link,code){
   // Find the text content of the child <span> element within the found element
   const spanText = await page.evaluate(() => {
     const element = document.querySelector('[itemprop="name"]');
-    const spanElement = element.querySelector('span');
-    return spanElement.textContent;
+    return element.textContent;
   });
 
    // Find the text content of the child <span> element within the <a> tag
    const spanText2 = await page.evaluate(() => {
-    const element = document.querySelector('.Vbfug.auoIOc a span');
-    return element.textContent;
+    const element = document.querySelector('.Vbfug.auoIOc a');
+    return element.getAttribute('href');
   });
 
    // Get the src attribute of the element with itemprop="image"
