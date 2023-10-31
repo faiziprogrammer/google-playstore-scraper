@@ -37,7 +37,7 @@ connectToDatabase();
 
 app.post("/edit", async (req,res)=>{
   try{
-    const appCollection = client.db('web-data').collection('totalAppData2');
+    const appCollection = client.db('web-data').collection('totalAppData');
     await appCollection.findOneAndReplace({link:req.body.link},req.body)
     res.status(200)
   }catch(error){
@@ -49,7 +49,7 @@ app.post("/edit", async (req,res)=>{
 
 app.post("/delete", async (req,res)=>{
   try{
-    const appCollection = client.db('web-data').collection('totalAppData2');
+    const appCollection = client.db('web-data').collection('totalAppData');
     await appCollection.findOneAndDelete({link:req.body.link})
     res.status(200)
   }catch(error){
@@ -61,7 +61,7 @@ app.post("/delete", async (req,res)=>{
 
 app.post("/create", async (req,res)=>{
   try{
-    const appCollection = client.db('web-data').collection('totalAppData2');
+    const appCollection = client.db('web-data').collection('totalAppData');
     await appCollection.insertOne(req.body);
     res.status(200).send("Successful")
   }catch(error){
@@ -73,14 +73,14 @@ app.post("/create", async (req,res)=>{
 
 
 app.get("/getDatabase", async (req,res) => {
-  const collectionArray = await client.db('web-data').collection('totalAppData2').find({}).toArray();
+  const collectionArray = await client.db('web-data').collection('totalAppData').find({}).toArray();
   res.send(collectionArray)
 })
 
 app.post("/postApps",async (req,res)=> {
   try {
 
-    const appCollection = client.db('web-data').collection('totalAppData2');
+    const appCollection = client.db('web-data').collection('totalAppData');
 
     // Delete all documents in the collection
     await appCollection.deleteMany({});
