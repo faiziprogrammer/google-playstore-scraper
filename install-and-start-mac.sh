@@ -9,9 +9,6 @@ cd ../frontend
 npm install
 
 # Build the React frontend (if necessary)
-npm run build
+npm run concurrently
 
-# Start the backend and frontend concurrently
-cd ../backend
-npm start
 
