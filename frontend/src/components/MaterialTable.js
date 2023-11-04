@@ -23,7 +23,7 @@ import { Link } from 'react-router-dom';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 const sources = ["java","flutter","unity"]
-const url = "play.google.com"
+const url = "https://play.google.com"
 
 const MaterialTable = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -118,6 +118,8 @@ const MaterialTable = () => {
             params: { link: row.link,
             code:row.code },
           });
+          console.log(response.data.downloads)
+          response.data.downloads=convertAbbreviatedNumber(response.data.downloads)
           if(response.data.Live==="Not Live"){
             row.Live="Not Live"
             return row;
@@ -127,7 +129,6 @@ const MaterialTable = () => {
           }
         })
       );
-      
       setTableData(updatedTableData);
       await axios.post(`${process.env.REACT_APP_BASE_URL}/postApps`,updatedTableData)
       .then(()=>{
@@ -147,10 +148,30 @@ const MaterialTable = () => {
       {
         accessorKey: 'link',
         header: 'Link',
-        size: 140,
+        size: 160,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
+        Cell: ({ cell }) => (
+          <Box style={{display: 'flex',
+          gap:'10px'
+          }}>
+            {cell.getValue()}
+             {cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
+              <button onClick={(e)=>{ e.preventDefault();
+                // Check if the event target is the button.
+                if (e.target.tagName === 'BUTTON') {
+                  alert("Copied to clipboard!");
+              }}} style={{
+              padding: '4px 16px',
+              borderRadius: '4px',
+              color: 'black',
+              border:'1px solid black',
+              backgroundColor:'white'
+            }}>Copy</button>
+            </CopyToClipboard>):""}
+          </Box>
+        ),
       },
       {
         accessorKey: 'code',
@@ -188,15 +209,24 @@ const MaterialTable = () => {
         size: 20,
         enableEditing: false,
         Cell: ({ cell }) => (
-          cell.getValue()?(<CopyToClipboard text={url+cell.getValue()}>
-            <button style={{
+          <Box style={{display: 'flex',
+          gap:'10px'
+          }}>
+            {cell.getValue()?url+cell.getValue():""}
+             {cell.getValue()?(<CopyToClipboard text={url+cell.getValue()}>
+              <button onClick={(e)=>{ e.preventDefault();
+                // Check if the event target is the button.
+                if (e.target.tagName === 'BUTTON') {
+                  alert("Copied to clipboard!");
+              }}} style={{
               padding: '4px 16px',
               borderRadius: '4px',
               color: 'black',
               border:'1px solid black',
               backgroundColor:'white'
-            }}>{url+cell.getValue()}</button>
-          </CopyToClipboard>):""
+            }}>Copy</button>
+            </CopyToClipboard>):""}
+          </Box>
         ),
       },
       {
@@ -210,13 +240,6 @@ const MaterialTable = () => {
         header: 'Downloads',
         size: 20,
         enableEditing: false,
-        Cell: ({ cell }) => (
-          <Box >
-            <p>{
-              convertAbbreviatedNumber(cell.getValue())
-              }</p>
-          </Box>
-        ),
       },
       {
         accessorKey: 'Live',
@@ -242,15 +265,24 @@ const MaterialTable = () => {
         header: 'Website',
         enableEditing: false,
         Cell: ({ cell }) => (
-          cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
-            <button style={{
+          <Box style={{display: 'flex',
+          gap:'10px'
+          }}>
+            {cell.getValue()}
+             {cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
+              <button onClick={(e)=>{ e.preventDefault();
+                // Check if the event target is the button.
+                if (e.target.tagName === 'BUTTON') {
+                  alert("Copied to clipboard!");
+              }}} style={{
               padding: '4px 16px',
               borderRadius: '4px',
               color: 'black',
               border:'1px solid black',
               backgroundColor:'white'
-            }}>{cell.getValue()}</button>
-          </CopyToClipboard>):""
+            }}>Copy</button>
+            </CopyToClipboard>):""}
+          </Box>
         ),
       },
       {
@@ -258,15 +290,24 @@ const MaterialTable = () => {
         header: 'Privacy Policy',
         enableEditing: false,
         Cell: ({ cell }) => (
-          cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
-            <button style={{
+          <Box style={{display: 'flex',
+          gap:'10px'
+          }}>
+            {cell.getValue()}
+             {cell.getValue()?(<CopyToClipboard text={cell.getValue()}>
+              <button onClick={(e)=>{ e.preventDefault();
+                // Check if the event target is the button.
+                if (e.target.tagName === 'BUTTON') {
+                  alert("Copied to clipboard!");
+              }}} style={{
               padding: '4px 16px',
               borderRadius: '4px',
               color: 'black',
               border:'1px solid black',
               backgroundColor:'white'
-            }}>{cell.getValue()}</button>
-          </CopyToClipboard>):""
+            }}>Copy</button>
+            </CopyToClipboard>):""}
+          </Box>
         ),
       },
       {
@@ -274,15 +315,24 @@ const MaterialTable = () => {
         header: 'Support Mail',
         enableEditing: false,
         Cell: ({ cell }) => (
-          cell.getValue()?(<CopyToClipboard text={cell.getValue().replace("mailto:", "")}>
-            <button style={{
+          <Box style={{display: 'flex',
+          gap:'10px'
+          }}>
+            {cell.getValue()?.replace("mailto:", "")}
+             {cell.getValue()?(<CopyToClipboard text={cell.getValue().replace("mailto:", "")}>
+              <button onClick={(e)=>{ e.preventDefault();
+                // Check if the event target is the button.
+                if (e.target.tagName === 'BUTTON') {
+                  alert("Copied to clipboard!");
+              }}} style={{
               padding: '4px 16px',
               borderRadius: '4px',
               color: 'black',
               border:'1px solid black',
               backgroundColor:'white'
-            }}>{cell.getValue().replace("mailto:", "")}</button>
-          </CopyToClipboard>):""
+            }}>Copy</button>
+            </CopyToClipboard>):""}
+          </Box>
         ),
       },
     ],
